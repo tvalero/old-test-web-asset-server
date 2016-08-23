@@ -1,3 +1,4 @@
+FROM python:2.7-onbuild
 # VERSION          : 1
 # DOCKER-VERSION   : 1.11
 # TO_BUILD         : docker build --pull=true --no-cache --rm -t julienbreux/synology-gandi-dynamic-dns:latest .
@@ -8,9 +9,6 @@ MAINTAINER Thierry Valero (IRD/MIVEGEC)
 LABEL ird.mivegec.name='tvalero/web-asset-server'
 LABEL ird.mivegec.description='Specify Web Asset Server in a container'
 LABEL ird.mivegec.torun='docker run -it -d tvalero/web-asset-server:dev -v <Your data volume>:/home/specify/attachments:rw'
-
-
-FROM python:2.7-onbuild
 
 RUN apt-get update && apt-get install -y \
     imagemagick \
