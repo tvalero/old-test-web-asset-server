@@ -53,7 +53,7 @@ Sur le serveur hôte (porte conténaire), les fichiers seraient stockés dans **
   <url type="delete">http://toto.ird.fr:33033/filedelete</url>
   <url type="getmetadata">http://toto.ird.fr:33033/getmetadata</url>
   <url type="testkey">http://toto.ird.fr:33033/testkey</url>
-  </urls>
+</urls>
 ```
 3. Vérifier la clef d'authentification: 
 `http://toto.ird.fr:33033/testkey`
