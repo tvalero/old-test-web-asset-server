@@ -1,8 +1,3 @@
-# VERSION          : 1
-# DOCKER-VERSION   : 1.11
-# TO_BUILD         : docker build --pull=true --no-cache --rm -t julienbreux/synology-gandi-dynamic-dns:latest .
-# TO_SHIP          : docker push julienbreux/synology-gandi-dynamic-dns:latest
-# TO_RUN           : docker run -ti --rm julienbreux/synology-gandi-dynamic-dns:latest
 MAINTAINER Thierry Valero (IRD/MIVEGEC)
 
 LABEL ird.mivegec.name='tvalero/web-asset-server'
