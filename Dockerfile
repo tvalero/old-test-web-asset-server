@@ -5,6 +5,8 @@ LABEL ird.mivegec.name='tvalero/web-asset-server'
 LABEL ird.mivegec.description='Specify Web Asset Server in a container'
 LABEL ird.mivegec.torun='docker run -it -d tvalero/web-asset-server:latest -v <Your data volume>:/home/specify/attachments:rw'
 
+RUN apt-get upgrade -y 
+
 RUN apt-get update && apt-get install -y \
     imagemagick \
     ghostscript
