@@ -1,10 +1,9 @@
 FROM python:2.7-onbuild
-
 MAINTAINER Thierry Valero (IRD/MIVEGEC)
 
 LABEL ird.mivegec.name='tvalero/web-asset-server'
 LABEL ird.mivegec.description='Specify Web Asset Server in a container'
-LABEL ird.mivegec.torun='docker run -it -d tvalero/web-asset-server:dev -v <Your data volume>:/home/specify/attachments:rw'
+LABEL ird.mivegec.torun='docker run -it -d quay.io/mivegec/specify-web-asset-server:latest -v <Your data volume>:/home/specify/attachments:rw'
 
 
 RUN apt-get update && apt-get install -y \
@@ -20,5 +19,8 @@ EXPOSE 8080
 ENV BASE_DIR /home/specify/attachments/
 RUN mkdir -p /home/specify/attachments
 VOLUME       /home/specify/attachments
+
+# Version du conténaire (en relation avec la release gitflow)
+ENV CONTAINER_RELEASE 20170516a
 
 ENTRYPOINT python server.py

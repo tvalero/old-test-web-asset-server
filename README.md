@@ -1,3 +1,5 @@
+[![Docker Repository on Quay](https://quay.io/repository/mivegec/specify-web-asset-server/status "Docker Repository on Quay")](https://quay.io/repository/mivegec/specify-web-asset-server)
+
 DEV Specify Web Asset Server (dans un conténaire)
 =====================================
 
