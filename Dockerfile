@@ -1,4 +1,5 @@
 FROM python:2.7-onbuild
+
 MAINTAINER Thierry Valero (IRD/MIVEGEC)
 
 LABEL ird.mivegec.name='tvalero/web-asset-server'
