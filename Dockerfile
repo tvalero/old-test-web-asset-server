@@ -21,6 +21,6 @@ ENV BASE_DIR /home/specify/attachments/
 RUN mkdir -p /home/specify/attachments
 VOLUME       /home/specify/attachments
 
-ENV CONTAINER_RELEASE 20170517b-hf-001-clean
+ENV CONTAINER_RELEASE 20170517d
 
 ENTRYPOINT python server.py
