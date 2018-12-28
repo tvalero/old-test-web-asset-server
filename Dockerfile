@@ -15,14 +15,15 @@ EXPOSE 8080
 
 ENV BASE_DIR /home/specify/attachments/
 RUN mkdir -p /home/specify/attachments
-VOLUME       /home/specify/attachments
+#VOLUME       /home/specify/attachments
 
 LABEL ird.mivegec.name='tvalero/web-asset-server'
 
 
-ENV CONTAINER_RELEASE DEV-20170517d
+ENV CONTAINER_RELEASE r001-20181228
 
 LABEL org.label-schema.schema-version "1.0"
+# Voir http://label-schema.org/rc1/
 
 LABEL description         'Specify Web Asset Server in a container'
 LABEL docker.cmd          'docker run -it -d quay.io/mivegec/specify-web-asset-server:latest -v ./data/attachments:/home/specify/attachments:rw'
