@@ -1,64 +1,130 @@
-[![Docker Repository on Quay](https://quay.io/repository/mivegec/specify-web-asset-server/status "Docker Repository on Quay")](https://quay.io/repository/mivegec/specify-web-asset-server)
+Web Asset Server
+================
 
-DEV Specify Web Asset Server (dans un conténaire)
-=====================================
-
-Création d'un conténaire "clef en main" pour le Web Asset Server de Specify.
+This is a sample attachment server implementation for Specify. This implementation is targetted at Ubuntu flavors, but will work with minor modifications on other Linux systems. It is not expected to work without extensive adaptation on Windows systems.
 
 
-Pré-requis 
+Dependencies
+------------
+
+The dependencies are:
+
+1. *Python* 2.7 is known to work. (see below for Python 2.6)
+1. *ExifRead* for EXIF metadata.
+1. *sh* the Python shell command utility.
+1. *bottlepy* the Python web micro-framework.
+1. *ImageMagick* for thumbnailing.
+1. *Ghostscript* for PDF thumbnailing.
+1. *Paste* Python web server
+
+Bottle is included in the distribution. To install the other dependencies
+the following commands work on Ubuntu:
+
+```
+sudo apt-get install python-pip imagemagick ghostscript
+sudo pip install -r requirements.txt
+```
+
+Installing
 ----------
 
-1. *Docker* (testé avec v1.11) pour la pris en charge du conténaire.
-2. Suffisament de *mémoire* (512 Mo) et d'espace disques pour stocker les pièces jointes. 
+It is easiest just to clone this repository.
 
+Running the development server
+------------------------------
 
-Configuration des variables d'environnements 
---------------------------------------------
+Adjust the settings in the `settings.py` in your working directory. Then
+run the server with the following command:
 
-`SPECIFY_KEY`  : clef d'authentification ou "None" ; la valeur par défaut est "None".
+```
+python server.py
+```
 
-`SPECIFY_HOST` : nom (DNS) ou adrese (IP) du serveur publique ; la valeur par défaut est "localhost"
-
-`SPECIFY_PORT` : numéro du port sur le serveur publique ; la valeur par défaut est "8080".
-
-Installation
-----------
-
-1. Avec Docker (version ligne de commande, Kitematic ou Docker pour Synology), télécharger le conténaire depuis : https://hub.docker.com/r/tvalero/web-asset-server-build/
-1. Lancer le conténaire la commande suivante :
-
- `docker run --name web-asset-server  --env SPECIFY_HOST=`xxxxx` --env SPECIFY_PORT=``yyyy`  -p 8080:8080 -d tvalero/web-asset-server-build:latest -v `<répertoire des fichier>`:/home/specify/attachments:rw`
-
-
-Test de la configuration
-------------------------
-
-1. Vérifier que l'URL suivante répond bien : http://[SPECIFY_HOST]:[SPECIFY_PORT]/web_asset_store.xml
-2. Vérifier que le contenu de la réponse renvoie bien vers le serveur [SPECIFY_HOST] sure le port [SPECIFY_PORT] 
-3. Vérifier que la clef d'authentification est valide en allant à http://[SPECIFY_HOST]:[SPECIFY_PORT]/testkey
-
-Exemple :
+Deploying
 ---------
 
-L'application Web Asset Server sera installée sur le serveur dont le nom publique est **toto.ird.fr**, sur le port **33033**.
-Sur le serveur hôte (porte conténaire), les fichiers seraient stockés dans **/data/specify/asset**.
+In my experience, it has been easiest to deploy using the Python *Paste* server.
 
-1. Lancement du conténaire avec  `docker run --name web-asset-server  --env SPECIFY_HOST=toto.ird.fr --env SPECIFY_PORT=33033 -p 8080:8080 -d tvalero/web-asset-server-build:latest -v /data/specify/asset/:/home/specify/attachments:rw`
-2. Vérifier l'URL `http://toto.ird.fr:33033/web_asset_store.xml` réponde bien :
+In `settings.py` set the value `SERVER = 'paste'`.
 
-````xml      
+To run the server on a privileged port, e.g. 80, the utility 
+[authbind](http://en.wikipedia.org/wiki/Authbind) is recommended.
 
-<urls>
-  <url type="read">http://toto.ird.fr:330033/fileget</url>
-  <url type="write">http://toto.ird.fr:33033/fileupload</url>
-  <url type="delete">http://toto.ird.fr:33033/filedelete</url>
-  <url type="getmetadata">http://toto.ird.fr:33033/getmetadata</url>
-  <url type="testkey">http://toto.ird.fr:33033/testkey</url>
-</urls>
+`sudo apt-get install authbind`
+
+Assuming you are logged in as the user that will be used to run the server process,
+the following commands will tell *authbind* to allow port 80 to be used:
+
 ```
-3. Vérifier la clef d'authentification: 
-`http://toto.ird.fr:33033/testkey`
+touch 80
+chmod u+x 80
+sudo mv 80 /etc/authbind/byport
+```
+
+An *upstart* script or *systemd* unit file can be created to make sure the web asset server is started
+automatically.
+
+It is important that the working directory is set to the path containing `server.py`
+so that *bottle.py* can find the template files. See [“TEMPLATE NOT FOUND” IN MOD_WSGI/MOD_PYTHON](http://bottlepy.org/docs/dev/faq.html#template-not-found-in-mod-wsgi-mod-python).
+
+Note: Some users have reported that `authbind` must be provided with the `--deep` option.
+If the asset server is failing to start due to permission problems, this may be a solution.
+
+### Upstart
+Create the file `/etc/init/web-asset-server.conf` with the following
+contents, adjusting the `setuid` user and directories as appropriate:
+
+```
+description "Specify Web Asset Server"
+author "Ben Anhalt <anhalt@ku.edu>"
+
+start on runlevel [234]
+stop on runlevel [0156]
+
+setuid anhalt
+
+chdir /home/anhalt/web-asset-server
+exec /usr/bin/authbind /usr/bin/python /home/anhalt/web-asset-server/server.py
+respawn
+```
+
+Then reload the init config files and start the server:
+
+```
+sudo initctl reload-configuration
+sudo start web-asset-server
+```
+
+By default, the server's logs go to standard output which *upstart* will redirect
+to `/var/log/upstart/web-asset-server.log`
+
+### Systemd
+
+Create the file `/etc/systemd/system/web-asset-server.conf` with the following
+contents, adjusting the usernames and paths as appropriate:
+
+```conf
+[Unit]
+Description=Specify Web Asset Server
+Wants=network.target
+
+[Service]
+User=specify
+WorkingDirectory=/home/specify/web-asset-server
+ExecStart=/usr/bin/authbind /usr/bin/python /home/specify/web-asset-server/server.py
+```
+
+Tell Systemd to reload its config with
+
+```
+sudo systemctl daemon-reload
+```
+
+
+HTTPS
+-----
+The easiest way to add HTTPS support, which is necessary to use the asset server with a Specify 7 server that is using HTTPS, is to place the asset server behind a reverse proxy such as Nginx. This also makes it possible to forego *authbind* and run the asset server on an unprivileged port. The proxy must be configured to rewrite the `web_asset_store.xml` resource to adjust the links therein. An example configuration can be found in [this gist](https://gist.github.com/benanhalt/d43a3fa7bf04edfc0bcdc11c612b2278).
+
 
 Specify settings
 ----------------
@@ -73,9 +139,38 @@ a properties editor for the global preferences. You will need to set four proper
 to configure access to the asset server:
 
 * `USE_GLOBAL_PREFS` `true`
-* `attachment.key`  obtain from Docker environment variable `SPECIFY_KEY` 
-* `attachment.url`  `http://[SPECIFY_HOST]:[SPECIFY_PORT]/web_asset_store.xml` 
+* `attachment.key`  obtain from asset server `settings.py` file
+* `attachment.url`  `http://[YOUR_SERVER]/web_asset_store.xml` 
 * `attachment.use_path` `false`
 
 If these properties do not already exist, they can be added using the *Add Property*
 button. 
+
+Python 2.6 compatibility
+------------------------
+
+The following information is courtesy of David Konrad of The Natural
+History Museum of Denmark:
+
+It is possible to install the Attachment Server on a SuSe Enterprise 11 SP3 with python 2.6.8.
+
+* *python-pip* should be installed manually from RPM, v1.2.1 only version that works without conflict / break
+* *python-exif* should be installed manually from PRM
+* *OrderedDict* needs a "backport" -> https://pypi.python.org/pypi/ordereddict
+
+changes in `server.py`  :
+
+```
+try:
+    from collections import OrderedDict
+except ImportError:
+    # python 2.6 or earlier, use backport
+    from ordereddict import OrderedDict
+```
+
+changes in `settings.py` :
+
+```
+#CAN_THUMBNAIL = {'image/jpeg', 'image/gif', 'image/png', 'image/tiff', 'application/pdf'}
+CAN_THUMBNAIL = ['image/jpeg', 'image/gif', 'image/png', 'image/tiff', 'application/pdf']
+```

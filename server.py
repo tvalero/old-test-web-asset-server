@@ -6,7 +6,6 @@ from urllib import pathname2url, quote
 from collections import defaultdict, OrderedDict
 from functools import wraps
 import exifread, json, hmac, time
-import sys
 
 from bottle import (
     Response, request, response, static_file, template, abort,
@@ -332,6 +331,5 @@ def web_asset_store():
 
 if __name__ == '__main__':
     from bottle import run
-    sys.stderr.write("web externally identified as http://%s:%d/ from ENV\n" % (settings.HOST, settings.PORT))
-    run(host='0.0.0.0', port=8080, server=settings.SERVER,
+    run(host='0.0.0.0', port=settings.PORT, server=settings.SERVER,
         debug=settings.DEBUG, reloader=settings.DEBUG)
