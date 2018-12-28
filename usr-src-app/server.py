@@ -333,5 +333,7 @@ def web_asset_store():
 if __name__ == '__main__':
     from bottle import run
     sys.stderr.write("web externally identified as http://%s:%d/ from ENV\n" % (settings.HOST, settings.PORT))
+    sys.stderr.write("Key : '%s' loaded from ENV\n" % (settings.KEY))
+
     run(host='0.0.0.0', port=8080, server=settings.SERVER,
         debug=settings.DEBUG, reloader=settings.DEBUG)
