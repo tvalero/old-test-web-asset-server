@@ -32,9 +32,10 @@ ALLOW_STATIC_FILE_ACCESS = True
 # These values are interpolated into the web_asset_store.xml resource
 # so the client knows how to talk to the server.
 HOST = os.environ.get('SPECIFY_HOST', 'localhost') 
-PORT = int(os.environ.get('SPECIFY_PORT', 8080)
+PORT = int(os.environ.get('SPECIFY_PORT', "8080" )
 
 # Port the development test server should listen on.
+print (PORT )
 DEVELOPMENT_PORT = PORT
 
 # Map collection names to directories.  Set to None to store
