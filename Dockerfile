@@ -28,7 +28,7 @@ RUN mkdir -p /home/specify/attachments
 
 
 
-ENV SPECIFY_VERSION       r001-20181228
+ENV SPECIFY_VERSION       r002-20181228
 
 LABEL org.label-schema.schema-version "1.0"
 # Voir http://label-schema.org/rc1/

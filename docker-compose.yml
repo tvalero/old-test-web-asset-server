@@ -40,7 +40,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    image: quay.io/mivegec/specify-web-asset-server:dev
+    image: quay.io/mivegec/specify-web-asset-server:r002
     restart: always
     volumes:     
       - "./data/attachments:/home/specify/attachments:rw"
