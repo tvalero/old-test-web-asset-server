@@ -1,19 +1,56 @@
 version: '2'
+
 services:
   
+  specify-mariadb:
+    image: mariadb:10.2
+    restart: always
+    environment:
+        - MYSQL_ROOT_PASSWORD=my-secret-pw
+        - MYSQL_DATABASE=specify
+        - MYSQL_USER=specify-it-user
+        - MYSQL_PASSWORD=specify
+#Pour ouvrir le port en dehors du réseau local
+#    ports:
+#          - "3306:3306"
+    volumes:
+      - "./data/mariadb:/var/lib/mysql:rw"
+#      - "./source.sql:/docker-entrypoint-initdb.d/source.sql"
+    networks:
+      - default  
 
+# Backup
+# docker exec source-mariadb sh -c 'exec mysqldump --databases ${MYSQL_DATABASE}  -uroot -p"$MYSQL_ROOT_PASSWORD"' | gzip -c -8 > mysqldump-$(date +%Y%m%d-%H%M%S).sql.gz   
+
+  specify-phpmyadmin:
+    depends_on:
+      - specify-mariadb
+    image: phpmyadmin/phpmyadmin:4.8
+    restart: "no"
+    ports:
+      - "8001:80"
+    environment:
+        - PMA_HOST=source-mariadb
+    networks:
+      - default  
+      
   specify-web-server:
+    depends_on:
+      - specify-mariadb  
     build:
       context: ./
       dockerfile: Dockerfile
-    image: quay.io/mivegec/specify-web-asset-server:r001
-#    restart: always
-    volumes:
-      - ./data/attachments:/home/specify/attachments:rw"
-    ports:
-      - "8080:8080"
+    image: quay.io/mivegec/specify-web-asset-server:r002
+    restart: always
+    volumes:     
+      - "./data/attachments:/home/specify/attachments:rw"
+#      - "./usr-src-app:/usr/src/app:rw"
     environment:
       - TZ=America/La_Paz
+      - SPECIFY_HOST=localhost
+      - SPECIFY_PORT=8088
+    ports:
+      - 8088:8080
     networks:
       - default  
 
