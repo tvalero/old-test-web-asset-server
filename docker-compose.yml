@@ -10,9 +10,9 @@ services:
         - MYSQL_DATABASE=specify
         - MYSQL_USER=specify-it-user
         - MYSQL_PASSWORD=specify
-#Pour ouvrir le port en dehors du réseau local
-#    ports:
-#          - "3306:3306"
+#Pour ouvrir le port en dehors du réseau "local" (des conteneurs de ce docker-compose.yml)
+    ports:
+          - "3306:3306"
     volumes:
       - "./data/mariadb:/var/lib/mysql:rw"
 #      - "./source.sql:/docker-entrypoint-initdb.d/source.sql"
@@ -30,7 +30,7 @@ services:
     ports:
       - "8001:80"
     environment:
-        - PMA_HOST=source-mariadb
+        - PMA_HOST=specify-mariadb
     networks:
       - default  
       
